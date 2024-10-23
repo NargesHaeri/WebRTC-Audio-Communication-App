@@ -1,12 +1,25 @@
+
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
+#include <QQmlContext>
+#include "audioinput.h"
+#include "audiooutput.h"
+// #include "client.h"
+// #include <webrtc.h>
 int main(int argc, char *argv[])
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
     QGuiApplication app(argc, argv);
 
+        // Create AudioInput and AudioOutput objects
     QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/CN_CA1/main.qml"));
+
+    qmlRegisterType<AudioInput>("Audio", 1, 0, "AudioInput");
+    qmlRegisterType<AudioOutput>("Audio", 1, 0, "AudioOutput");
+
+    const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreated,
