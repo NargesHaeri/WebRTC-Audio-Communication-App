@@ -1,11 +1,10 @@
-
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include "audioinput.h"
 #include "audiooutput.h"
-// #include "client.h"
-// #include <webrtc.h>
+#include "webrtc.h" 
+
 int main(int argc, char *argv[])
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -13,11 +12,12 @@ int main(int argc, char *argv[])
 #endif
     QGuiApplication app(argc, argv);
 
-        // Create AudioInput and AudioOutput objects
     QQmlApplicationEngine engine;
 
+    // Register C++ classes to QML
     qmlRegisterType<AudioInput>("Audio", 1, 0, "AudioInput");
     qmlRegisterType<AudioOutput>("Audio", 1, 0, "AudioOutput");
+    qmlRegisterType<WebRTC>("WebRTCModule", 1, 0, "WebRTC");
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(
