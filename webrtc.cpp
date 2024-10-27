@@ -78,12 +78,12 @@ void WebRTC::addPeer(const QString &peerId)
     m_peerConnections.insert(peerId ,newPeer);
 
     //add audio track
-    
+    addAudioTrack(peerId, "audio");
 
     // Set up a callback for when the local description is generated
     newPeer->onLocalDescription([this, peerId](const rtc::Description &description) {
         // The local description should be emitted using the appropriate signals based on the peer's role (offerer or answerer)
-        m_peerSdps[peerId] = description;
+        //m_peerSdps[peerId] = description;
         if (!m_gatheringComplited) {
             m_gatheringComplited = true;
             Q_EMIT gatheringComplited(peerId);

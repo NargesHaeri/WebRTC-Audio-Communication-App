@@ -83,8 +83,6 @@ void AudioOutput::play() {
         if (bytesWritten != packet.size()) {
             qWarning() << "Not all audio data was written!";
         }
-
-        // TODO: Add Opus decoding here before writing to the audio device
     } else {
         qDebug() << "Data queue is empty, nothing to play.";
     }

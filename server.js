@@ -1,57 +1,62 @@
-// server.js
-const io = require('socket.io')(3000);
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 3000 });
 
 // Hardcoded caller IDs and their connections
-let usersCount = -1;
-const id = "client"
-
 let users = {};
+let usersCount = -1;
+const id = "client";
 
-io.on('connection', (socket) => {
+wss.on('connection', (socket) => {
     usersCount++;
-    console.log('New connection:', socket.id)
-    users[`${id}${usersCount}`] = socket;
+    const clientId = `${id}${usersCount}`;
+    users[clientId] = socket;
 
-  
-    socket.on('offer', (data) => {
-        const user = users[data.targetId]
-        if (!user) return; 
+    console.log('New connection:', clientId);
 
-        user.emit('offer', {
-            sdp: data.sdp,
-            fromId: socket.id
-        });
-    });
+    socket.on('message', (message) => {
+        const data = JSON.parse(message);
 
-    // Handle SDP answer
-    socket.on('answer', (data) => {
-        const user = users[data.targetId]
-        if (!user) return; 
+        // Handle offer
+        if (data.type === 'offer') {
+            const targetSocket = users[data.targetId];
+            if (targetSocket) {
+                targetSocket.send(JSON.stringify({
+                    type: 'offer',
+                    sdp: data.sdp,
+                    fromId: clientId
+                }));
+            }
+        }
 
-        user.emit('answer', {
-            sdp: data.sdp,
-            fromId: socket.id
-        });
-    });
+        // Handle answer
+        else if (data.type === 'answer') {
+            const targetSocket = users[data.targetId];
+            if (targetSocket) {
+                targetSocket.send(JSON.stringify({
+                    type: 'answer',
+                    sdp: data.sdp,
+                    fromId: clientId
+                }));
+            }
+        }
 
-    // Handle ICE candidates
-    socket.on('ice_candidate', (data) => {
-        const targetSocketId = clients.get(data.targetId);
-        if (targetSocketId) {
-            io.to(targetSocketId).emit('ice_candidate', {
-                candidate: data.candidate,
-                mid: data.mid,
-                fromId: socket.clientId
-            });
+        // Handle ICE candidate
+        else if (data.type === 'ice_candidate') {
+            const targetSocket = users[data.targetId];
+            if (targetSocket) {
+                targetSocket.send(JSON.stringify({
+                    type: 'ice_candidate',
+                    candidate: data.candidate,
+                    mid: data.mid,
+                    fromId: clientId
+                }));
+            }
         }
     });
 
     // Handle disconnection
-    socket.on('disconnect', () => {
-        if (socket.clientId) {
-            clients.delete(socket.clientId);
-            console.log(`Client disconnected: ${socket.clientId}`);
-        }
+    socket.on('close', () => {
+        delete users[clientId];
+        console.log(`Client disconnected: ${clientId}`);
     });
 });
-
