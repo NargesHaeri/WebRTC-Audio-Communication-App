@@ -13,6 +13,11 @@ Window {
     visible: true
     title: qsTr("CA1")
 
+    /*AudioInput {
+        id: input
+        onNewAudioData: (barray) => output.addData(barray)
+    }*/
+
     AudioOutput {
         id: output
 
@@ -20,11 +25,16 @@ Window {
             output.start();
             input.start();
         }
+
+        // Function to add audio data to the output
+        function addIncomingData(data) {
+            addData(data);  // Add incoming packet data to the output
+        }
     }
 
     AudioInput {
         id: input
-        onNewAudioData: (barray) => output.addData(barray)
+        onNewAudioData: (barray) => webrtc.sendTrack(textfield.text, barray)
     }
 
     WebRTC {
@@ -38,7 +48,12 @@ Window {
             signalingServer.sendOffer(peerID, sdp)  // Send offer via WebSocket
         }
         onAnswerIsReady: (peerID, sdp) => {
-            signalingServer.sendAnswer(peerID, sdp)  // Send offer via WebSocket
+            signalingServer.sendAnswer(peerID, sdp)  // Send answer via WebSocket
+        }
+
+        // Connect the incoming packet signal to add data to AudioOutput
+        onIncommingPacket: (peerId, packet, size) => {
+            output.addIncomingData(packet);  // Add received audio packet to output
         }
     }
 
