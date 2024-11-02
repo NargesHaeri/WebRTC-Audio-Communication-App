@@ -28,7 +28,6 @@ Window {
         id: input
         onNewAudioData: (barray) => {
                             if (textfield.text !== "") {
-                                console.log("why are you here?")
                                 webrtc.sendTrack(textfield.text, barray);
                             }
                         }
@@ -51,7 +50,7 @@ Window {
         onIncommingPacket: (peerId, packet, size) => {
                                output.addIncomingData(packet);
                            }
-
+                           
         onConnectionReady: {
             input.start();
         }
@@ -178,7 +177,6 @@ Window {
                     webrtc.addPeer(textfield.text);
 
                     if (webrtc.isOfferer) {
-                        console.log("IM HERE20");
                         webrtc.generateOfferSDP(textfield.text);
                     }
                 } else {
