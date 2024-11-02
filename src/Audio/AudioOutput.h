@@ -23,10 +23,10 @@ public:
 
 
 Q_SIGNALS:
-    void newPacket();  // Signal emitted when a new packet is added
+    void newPacket();
 
 public Q_SLOTS:
-    void play();       // Slot to play the first packet in the queue
+    void play();
     void addData(const QByteArray &data);
 
 private:
@@ -36,7 +36,7 @@ private:
     QAudioSink *audioSink;
     QIODevice *audioDevice;
     QMutex mutex;        
-    QQueue<QByteArray> dataQueue;  // Queue to store incoming audio packets
+    QQueue<QByteArray> dataQueue;
 };
 
 #endif // AUDIOOUTPUT_H

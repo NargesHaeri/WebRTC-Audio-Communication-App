@@ -13,12 +13,8 @@ class AudioInput : public QIODevice {
 public:
     AudioInput();
     ~AudioInput();
-
-
-
     qint64 writeData(const char *data, qint64 len) override;
     qint64 readData(char *data, qint64 len) override;
-
     Q_INVOKABLE void start();
 
 Q_SIGNALS:

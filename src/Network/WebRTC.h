@@ -3,8 +3,6 @@
 
 #include <QObject>
 #include <QMap>
-
-// Build the datachannellib library and add the include path to .pro file
 #include <rtc/rtc.hpp>
 
 class WebRTC : public QObject
@@ -48,6 +46,8 @@ Q_SIGNALS:
 
     void isOffererChanged();
 
+    void connectionReady();
+
     void gatheringComplited(const QString &peerID);
 
     void offerIsReady(const QString &peerID, const QString& description);
@@ -59,6 +59,8 @@ Q_SIGNALS:
     void payloadTypeChanged();
 
     void bitRateChanged();
+
+
 
 public Q_SLOTS:
     void setRemoteDescription(const QString &peerID, const QString &sdp);

@@ -3,80 +3,87 @@ import QtQuick.Controls.Material
 import QtQuick.Layouts
 import Audio
 import WebRTCModule
-import QtWebSockets  // Import WebSocket module
+import QtWebSockets
 
 Window {
-    x: 0
-    y: 0
+
     width: 280
     height: 520
     visible: true
     title: qsTr("CA1")
-
-    /*AudioInput {
-        id: input
-        onNewAudioData: (barray) => output.addData(barray)
-    }*/
 
     AudioOutput {
         id: output
 
         Component.onCompleted: {
             output.start();
-            input.start();
         }
 
-        // Function to add audio data to the output
         function addIncomingData(data) {
-            addData(data);  // Add incoming packet data to the output
+            addData(data);
         }
     }
 
     AudioInput {
         id: input
-        onNewAudioData: (barray) => webrtc.sendTrack(textfield.text, barray)
+        onNewAudioData: (barray) => {
+                            if (textfield.text !== "") {
+                                console.log("why are you here?")
+                                webrtc.sendTrack(textfield.text, barray);
+                            }
+                        }
     }
 
     WebRTC {
         id: webrtc
 
         Component.onCompleted: {
-            webrtc.init(textfield.text, true);  // Initialize WebRTC
+            webrtc.init(textfield.text, true);
         }
 
         onOfferIsReady: (peerID, sdp) => {
-            signalingServer.sendOffer(peerID, sdp)  // Send offer via WebSocket
-        }
+                            signalingServer.sendOffer(peerID, sdp);
+                        }
         onAnswerIsReady: (peerID, sdp) => {
-            signalingServer.sendAnswer(peerID, sdp)  // Send answer via WebSocket
-        }
+                             signalingServer.sendAnswer(peerID, sdp);
+                         }
 
-        // Connect the incoming packet signal to add data to AudioOutput
         onIncommingPacket: (peerId, packet, size) => {
-            output.addIncomingData(packet);  // Add received audio packet to output
+                               output.addIncomingData(packet);
+                           }
+
+        onConnectionReady: {
+            input.start();
         }
     }
 
     WebSocket {
         id: signalingServer
-        url: "ws://localhost:3000"  // URL of the server.js signaling server
-        onTextMessageReceived: {
-            // Parse incoming messages
-            const message = JSON.parse(message);
+        url: "ws://127.0.0.1:3000"
 
-            if (message.type === "offer") {
-                // Handle 'offer' message from server
-                webrtc.setRemoteDescription(message.fromId, message.sdp);
-            } else if (message.type === "answer") {
-                // Handle 'answer' message from server
-                webrtc.setRemoteDescription(message.fromId, message.sdp);
-            } else if (message.type === "ice_candidate") {
-                // Handle ICE candidates if needed
-                webrtc.setRemoteCandidate(message.fromId, message.candidate, message.mid);
+        onStatusChanged: {
+                console.log("WebSocket status:", signalingServer.status);
+                if (signalingServer.status === WebSocket.Open) {
+                    console.log("WebSocket is open.");
+                } else {
+                    console.log("WebSocket is not open.");
+                }
+            }
+
+        onTextMessageReceived: (message) => {
+
+            const pmessage = JSON.parse(message);
+
+            if (pmessage.type === "offer") {
+                webrtc.addPeer(pmessage.fromId);
+                webrtc.setRemoteDescription(pmessage.fromId, pmessage.sdp);
+            } else if (pmessage.type === "answer") {
+                webrtc.setRemoteDescription(pmessage.fromId, pmessage.sdp);
+            } else if (pmessage.type === "ice_candidate") {
+                webrtc.setRemoteCandidate(pmessage.fromId, pmessage.candidate, pmessage.mid);
             }
         }
 
-        // Function to send an offer over WebSocket
         function sendOffer(targetId, sdp) {
             const message = {
                 type: "offer",
@@ -86,7 +93,6 @@ Window {
             sendTextMessage(JSON.stringify(message));
         }
 
-        // Function to send an answer over WebSocket
         function sendAnswer(targetId, sdp) {
             const message = {
                 type: "answer",
@@ -96,7 +102,6 @@ Window {
             sendTextMessage(JSON.stringify(message));
         }
 
-        // Function to send ICE candidates over WebSocket
         function sendIceCandidate(targetId, candidate, mid) {
             const message = {
                 type: "ice_candidate",
@@ -106,6 +111,7 @@ Window {
             };
             sendTextMessage(JSON.stringify(message));
         }
+        active: true;
     }
 
     Item {
@@ -121,17 +127,18 @@ Window {
             }
 
             Label {
-                text: "Ip: " + "172.16.142.176"
+                text: "IP: " + "172.16.142.176"
                 Layout.fillWidth: true
                 Layout.preferredHeight: 40
             }
             Label {
-                text: "IceCandidate: " + "172.16.142.176"
+                text: "Ice Candidate: " + "172.16.142.176"
                 Layout.fillWidth: true
                 Layout.preferredHeight: 40
             }
             Label {
-                text: "CallerId: " + textfield.text
+                id: callerid
+                text: "Caller ID: " + textfield.text
                 Layout.fillWidth: true
                 Layout.preferredHeight: 40
             }
@@ -164,17 +171,22 @@ Window {
             }
 
             onClicked: {
-                pushed = !pushed
+                pushed = !pushed;
                 if (pushed) {
-                    Material.background = "red"
-                    text = "End Call"
-                    webrtc.addPeer(textfield.text)
+                    Material.background = "red";
+                    text = "End Call";
+                    webrtc.addPeer(textfield.text);
+
+                    if (webrtc.isOfferer) {
+                        console.log("IM HERE20");
+                        webrtc.generateOfferSDP(textfield.text);
+                    }
                 } else {
-                    Material.background = "green"
-                    text = "Call"
-                    textfield.clear()
+                    Material.background = "green";
+                    text = "Call";
                 }
             }
+
         }
     }
 }
