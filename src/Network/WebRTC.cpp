@@ -55,6 +55,9 @@ void WebRTC::init(const QString &id, bool isOfferer)
 
     // Add a STUN server to help peers find their public IP addresses
     m_config.iceServers.emplace_back("stun:stun.l.google.com:19302");
+    //m_config.iceServers.emplace_back("stun:72.234.202.9:3479");
+    // Add a TURN server to help peers find their public IP addresses
+    //m_config.iceServers.emplace_back("turn:narges:fatemehzahra@72.234.202.9:3479");
 
     // Set up the audio stream configuration
     m_audio.setBitrate(m_bitRate);
@@ -261,6 +264,7 @@ void WebRTC::setRemoteDescription(const QString &peerId, const QString &sdp)
     m_isOfferer = (type != "offer");
     connection->setRemoteDescription(rtc::Description(sdpValue.toStdString(), type.toStdString()));
 }
+
 
 // Add remote ICE candidates to the peer connection
 void WebRTC::setRemoteCandidate(const QString &peerID, const QString &candidate, const QString &sdpMid)

@@ -39,4 +39,4 @@ private:
     QQueue<QByteArray> dataQueue;
 };
 
-#endif // AUDIOOUTPUT_H
+#endif 

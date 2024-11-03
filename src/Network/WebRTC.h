@@ -101,4 +101,4 @@ private:
     Q_PROPERTY(int bitRate READ bitRate WRITE setBitRate RESET resetBitRate NOTIFY bitRateChanged FINAL)
 };
 
-#endif // WEBRTC_H
+#endif
