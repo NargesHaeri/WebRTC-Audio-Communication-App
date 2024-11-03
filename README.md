@@ -12,6 +12,8 @@ Fateme Zahra Broumandnia
 4. [Webrtc](#webrtc)
 5. [main.cpp](#maincpp)
 6. [main.qml](#mainqml)
+7. [Server](#server)
+8. [Third Step](#third-step)
 
 ---
 ## Audio Input
@@ -159,6 +161,8 @@ void AudioInput::handleStateChanged(QAudio::State newState) {
 
 با بسته شدن سوکت کلاینت متناظر، در پنجره‌ای اعلام می‌شود:
 ![alt text](Images/image-4.png)
+
+---
 
 ## main.cpp
 در این قسمت کلاس‌های c++ را برای استفاده در فایل qml فراخوانی کرده‌ایم:
