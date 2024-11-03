@@ -1,6 +1,3 @@
-To update the `README.md` for this WebRTC-based audio communication application, we'll cover installation, setup, usage, and a brief description of each main component:
-
-
 # CA1 - WebRTC Audio Communication App
 
 Narges Sadat Seyed Haeri
